@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "envcheck"
+version = "0.1.0"
+description = "Compare .env against .env.example and find missing or undocumented variables"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+keywords = ["dotenv", "env", "environment", "config", "ci", "developer-tools"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Topic :: Software Development",
+    "Topic :: Utilities",
+]
+dependencies = [
+    "click>=8.0.0",
+]
+
+[project.scripts]
+envcheck = "envcheck.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/Gnomecromancer/envcheck"
+Repository = "https://github.com/Gnomecromancer/envcheck"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["envcheck*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
