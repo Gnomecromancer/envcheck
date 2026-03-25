@@ -1,6 +1,7 @@
 """CLI for envcheck."""
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
@@ -66,6 +67,14 @@ def _dim(s: str) -> str:
     "--quiet", "-q", is_flag=True, default=False,
     help="Only print issues (no OK messages). Exit code still reflects status.",
 )
+@click.option(
+    "--json", "output_json", is_flag=True, default=False,
+    help="Output results as JSON (machine-readable, implies --no-color).",
+)
+@click.option(
+    "--fix", is_flag=True, default=False,
+    help="Append missing keys to .env with empty values.",
+)
 @click.version_option(package_name="envwarden")
 def main(
     directory: Path,
@@ -75,6 +84,8 @@ def main(
     no_warn_empty: bool,
     no_color: bool,
     quiet: bool,
+    output_json: bool,
+    fix: bool,
 ) -> None:
     """Check that your .env matches .env.example.
 
@@ -83,11 +94,14 @@ def main(
 
     \b
     Examples:
-      envcheck                     # auto-detect in current directory
-      envcheck /path/to/project
-      envcheck --allow-extra       # ignore undocumented keys
-      envcheck --env .env.local --example .env.example
+      envwarden                     # auto-detect in current directory
+      envwarden /path/to/project
+      envwarden --allow-extra       # ignore undocumented keys
+      envwarden --env .env.local --example .env.example
+      envwarden --fix               # auto-add missing keys to .env
+      envwarden --json              # machine-readable output
     """
+    no_color = no_color or output_json
     red = (lambda s: s) if no_color else _red
     yellow = (lambda s: s) if no_color else _yellow
     green = (lambda s: s) if no_color else _green
@@ -123,6 +137,35 @@ def main(
         warn_empty=not no_warn_empty,
     )
 
+    # --fix: append missing keys to .env
+    fixed: list[str] = []
+    if fix and report.missing:
+        with open(env_path, "a", encoding="utf-8") as f:
+            f.write("\n# Added by envwarden --fix\n")
+            for key in report.missing:
+                f.write(f"{key}=\n")
+                fixed.append(key)
+        # re-check after fix
+        report = check(
+            env_path,
+            example_path,
+            allow_extra=allow_extra,
+            warn_empty=not no_warn_empty,
+        )
+
+    # --json output
+    if output_json:
+        click.echo(json.dumps({
+            "env": str(env_path),
+            "example": str(example_path),
+            "ok": report.ok,
+            "missing": report.missing,
+            "extra": report.extra,
+            "empty": report.empty,
+            "fixed": fixed,
+        }, indent=2))
+        sys.exit(0 if report.ok else 1)
+
     # Print context
     if not quiet:
         click.echo(
@@ -144,6 +187,9 @@ def main(
         click.echo(yellow(f"⚠ Empty ({len(report.empty)}) — keys with no value set:"))
         for key in report.empty:
             click.echo(f"    {yellow(key)}")
+
+    if fixed:
+        click.echo(green(f"✓ Fixed: appended {len(fixed)} missing key(s) to {env_path}"))
 
     if not quiet:
         if report.ok and not report.empty:
