@@ -1,30 +1,30 @@
-# envcheck
+# envwarden
 
 Compare `.env` against `.env.example` and find missing or undocumented variables — great for CI and onboarding.
 
 ## Install
 
 ```bash
-pip install envcheck
+pip install envwarden
 ```
 
 ## Usage
 
 ```bash
 # Auto-detect .env and .env.example in current directory
-envcheck
+envwarden
 
 # Scan a specific project directory
-envcheck /path/to/project
+envwarden /path/to/project
 
 # Ignore undocumented keys (don't flag .env-only vars)
-envcheck --allow-extra
+envwarden --allow-extra
 
 # Don't warn about empty values
-envcheck --no-warn-empty
+envwarden --no-warn-empty
 
 # CI-friendly: only print issues, exit 0/1
-envcheck --quiet
+envwarden --quiet
 ```
 
 ## Example output
@@ -56,7 +56,7 @@ Exits with code `1` when missing or extra keys are found, `0` when all clear.
 
 ```yaml
 - name: Verify .env matches .env.example
-  run: envcheck --quiet
+  run: envwarden --quiet
 ```
 
 ## License

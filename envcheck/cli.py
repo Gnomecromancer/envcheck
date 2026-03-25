@@ -66,7 +66,7 @@ def _dim(s: str) -> str:
     "--quiet", "-q", is_flag=True, default=False,
     help="Only print issues (no OK messages). Exit code still reflects status.",
 )
-@click.version_option(package_name="envcheck")
+@click.version_option(package_name="envwarden")
 def main(
     directory: Path,
     env_path: Path | None,

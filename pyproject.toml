@@ -3,7 +3,7 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "envcheck"
+name = "envwarden"
 version = "0.1.0"
 description = "Compare .env against .env.example and find missing or undocumented variables"
 readme = "README.md"
@@ -23,7 +23,7 @@ dependencies = [
 ]
 
 [project.scripts]
-envcheck = "envcheck.cli:main"
+envwarden = "envcheck.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/Gnomecromancer/envcheck"
